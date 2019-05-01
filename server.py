@@ -12,7 +12,7 @@ def setupSocket():
 
     #socket connects the client(RPi) to the server
     try:
-        #socket binds to a ip addres which is automatically assigned from a client that is connecting
+        #socket binds to an ip address which is automatically assigned from a client that is connecting
         s.bind(('', port))
         print("Socket has successfully binded to port ", port)
     except socket.error as msg:
@@ -102,23 +102,6 @@ except:
     print("Joystick could not initialize.")
     sys.exit()
 
-#thisfunction checks to see if the controller is initiating shutdown
-def checkShutdown(connOrig):
-    #sends a KILL command to the client when pressing Start and Back together
-    if joy.Start() && joy.Back():
-        connOrig.send(str.encode("KILL"))
-        time.sleep(1/2)
-        connOrig.close()
-        print("Connection was manually severed. Hold Start to shut down server.")
-        time.sleep(1)
-        #if Start and Back are held, the file shuts down too
-        if joy.Start() && joy.Back():
-            joy.close()
-            break
-        else: 
-            conn = setupConnection()
-            return conn
-
 #program starts here
 s = setupSocket()
 conn = setupConnection()
@@ -127,21 +110,31 @@ conn = setupConnection()
 #to the client which must decode it properly
 while True:
     data = ""
-    #program checks if shutdown by controller is initiated
-    conn = checkShutdown(conn)
-    
+    if joy.Start() & joy.Back():
+        conn.send(str.encode("KILL"))
+        time.sleep(1/2)
+        conn.close()
+        print("Connection was manually severed. Hold Start to shut down server.")
+        time.sleep(1)
+        #if Start and Back are held, the file shuts down too
+        if joy.Start() & joy.Back():
+            joy.close()
+            break
+        else: 
+            conn = setupConnection()
+
     #string is concatenated into data
     data = buttonCollect(data)
     data = stickCollect(data)
     data = trigCollect(data)
-    
+
     #sends HOLD command if controller is disconnected
     if not joy.connected():
         conn.sendall(str.encode("HOLD"))
         time.sleep(5)
     else:
         conn.sendall(str.encode(data))
-    time.sleep(1/4)
+    time.sleep(1/60)
 
 #everything is cleaned up after breaking the main loop
 s.close()
