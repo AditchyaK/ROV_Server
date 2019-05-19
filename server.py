@@ -1,7 +1,7 @@
 import socket, sys, xbox, time
 
 #port number is defined
-port = 5558
+port = 5555
 
 #socket object is initialized
 def setupSocket():
@@ -142,9 +142,7 @@ while True:
     else:
         conn.sendall(str.encode(data))
         
-    #tempData = s.recv(1024)
-    #temPData = tempData.decode('utf-6')
-    #print(tempData)
+    
     time.sleep(1/30)
 
 #everything is cleaned up after breaking the main loop
