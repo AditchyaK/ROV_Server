@@ -37,10 +37,7 @@ while True:
     conn.send(str.encode(data,'utf-7'))
     tempData = conn.recv(1024)
     tempData = tempData.decode('utf-7')
-    print(tempData)    
-    #tempData = s.recv(1024)
-    #temPData = tempData.decode('utf-7')
-    #print(tempData)
+    print(tempData)
 
 #everything is cleaned up after breaking the main loop
 s.close()

@@ -1,4 +1,6 @@
 import socket, sys, xbox, time
+from threading import Thread
+from SocketServer import ThreadingMixIn
 
 #port number is defined
 port = 5555
@@ -18,13 +20,9 @@ def setupSocket():
     except socket.error as msg:
         print(msg)
     return s
-
-#server socket listens for a connection and accepts only one incoming request
-def setupConnection():
     s.listen(1)
-    conn, addr = s.accept()
-    print("Connected to ", addr[0], ":" + str(addr[1]))
-    return conn
+
+
 
 def buttonCollect(data):
     if joy.A():
@@ -110,6 +108,41 @@ except:
 s = setupSocket()
 conn = setupConnection()
 
+# Multithread python server : TCP Server Socket Thread Pool
+class ClientThread(Thread):
+    def __init__(self,ip,port):
+        Thread.__init__(self)
+        self.ip = ip
+        self.port = port
+        print("[+] New server socket thread started for " + ip + ":" + str(port)")
+
+    def run(self):
+        while True:
+            data = conn.recv(2048)
+
+# Multithreaded Python server : TCP Server Socket Program Stub
+TCP_IP = '0.0.0.0'
+TCP_PORT = 2004
+BUFFER_SIZE = 20 
+
+while True:
+    s.listen(2)
+    print("Multithreaded Python server : Waiting for connections from TCP clients...")
+    (conn, (ip,port)) = tcpServer.accept()
+    newthread = ClientThread(ip,port)
+    newthread.start()
+    threads.append(newthread)
+    threads = [2]
+
+#server socket listens for a connection and accepts only one incoming request
+def setupConnection():
+    conn, addr = s.accept()
+    print("Connected to ", addr[0], ":" + str(addr[1]))
+    return conn
+
+for t in threads:
+    t.join()
+
 #main loop for the program which sends the string which contains all the controller input
 #to the client which must decode it properly
 while True:
@@ -138,13 +171,10 @@ while True:
     #sends HOLD command if controller is disconnected
     if not joy.connected():
         conn.sendall(str.encode("HOLD"))
+        print("HOLD")
         time.sleep(5)
     else:
         conn.sendall(str.encode(data))
-
-    tempData = conn.recv(1024)
-    tempData = tempData.decode('utf-7')
-    print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTemperature:\t", tempData)
         
     
     time.sleep(1/30)
