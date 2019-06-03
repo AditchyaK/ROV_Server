@@ -3,6 +3,8 @@ import socket, sys, xbox, time
 #port number is defined
 port = 5555
 
+buttonKeys = ["AB", "BB", "XB", "YB", "LH", "RH", "DU", "DD", "DL", "DR", "LB", "RB", "LX", "LY", "RX", "RY", "LT", "RT"]
+
 #socket object is initialized
 def setupSocket():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -25,6 +27,14 @@ def setupConnection():
     conn, addr = s.accept()
     print("Connected to ", addr[0], ":" + str(addr[1]))
     return conn
+
+def dataCollect(buttons, buttonKeys):
+    data = ""
+    for i in range(len(buttons)):
+        data += buttonKeys[i] + str(buttons[i])
+        if (i == len(buttons)-1)"
+            data += "END"
+    return data
 
 def buttonCollect(data):
     if joy.A():
@@ -77,7 +87,7 @@ def buttonCollect(data):
         data += "RB0"
     return data
 
-#input from the sticks are concanenated to a string (data)
+#input from the sticks are concatenated to a string (data)
 def stickCollect(data):
     data += "LX" + str(joy.leftX())
     data += "LY" + str(joy.leftY())
@@ -91,11 +101,6 @@ def trigCollect(data):
     data += "RT" + str(joy.rightTrigger())
     #the END must be concatenated to break the string at the other end
     data += "END"
-    return data
-
-def dataCollect(data, buttons):
-    for i in range(len(buttons)):
-        data += str(buttons[i]) + " "
     return data
 
 #xbox joystick class is initilized
@@ -113,9 +118,10 @@ conn = setupConnection()
 #main loop for the program which sends the string which contains all the controller input
 #to the client which must decode it properly
 while True:
-    #buttons = [joy.A(), joy.B(), joy.X(), joy.Y(), joy.leftThumbstick(), joy.rightThumbstick(), joy.dpadUp(), joy.dPadDown(), joy.dpadLeft(), joy.dpadRight(),
-    #joy.leftBumper(), joy.rightBumper(), joy.leftX(), joy.leftY(), joy.rightX(), joy.rightY(), joy.leftTrigger(), joy.rightTrigger()]
-    data = ""
+    #refreshes button values at the beginning of each loop
+    buttons = [joy.A(), joy.B(), joy.X(), joy.Y(), joy.leftThumbstick(), joy.rightThumbstick(), joy.dpadUp(), joy.dPadDown(), joy.dpadLeft(), joy.dpadRight(),
+joy.leftBumper(), joy.rightBumper(), joy.leftX(), joy.leftY(), joy.rightX(), joy.rightY(), joy.leftTrigger(), joy.rightTrigger()]
+
     #shuts the client down remotely if Start and Back are pressed
     if joy.Start() & joy.Back():
         conn.send(str.encode("KILL"))
@@ -130,10 +136,13 @@ while True:
         else: 
             conn = setupConnection()
 
+    """
     #data string is concatenated to include all data 
     data = buttonCollect(data)
     data = stickCollect(data)
     data = trigCollect(data)
+    """
+    data = dataCollect(buttons, buttonKeys)
 
     #sends HOLD command if controller is disconnected
     if not joy.connected():
