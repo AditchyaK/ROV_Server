@@ -28,79 +28,11 @@ def setupConnection():
     print("Connected to ", addr[0], ":" + str(addr[1]))
     return conn
 
+#this takes all the joystick data and concatenates it into a string with its 
 def dataCollect(buttons, buttonKeys):
     data = ""
     for i in range(len(buttons)):
         data += buttonKeys[i] + str(buttons[i])
-        if (i == len(buttons)-1)"
-            data += "END"
-    return data
-
-def buttonCollect(data):
-    if joy.A():
-        data += "AB1"
-    else:
-        data += "AB0"
-    if joy.B():
-        data += "BB1"
-    else:
-        data += "BB0"
-    if joy.X():
-        data += "XB1"
-    else:
-        data += "XB0"
-    if joy.Y():
-        data += "YB1"
-    else:
-        data += "YB0"
-    if joy.leftThumbstick():
-        data += "LH1"
-    else:
-        data += "LH0"
-    if joy.rightThumbstick():
-        data += "RH1"
-    else:
-        data += "RH0"
-    if joy.dpadUp():
-        data += "DU1"
-    else:
-        data += "DU0"
-    if joy.dpadDown():
-        data += "DD1"
-    else:
-        data += "DD0"
-    if joy.dpadLeft():
-        data += "DL1"
-    else:
-        data += "DL0"
-    if joy.dpadRight():
-        data += "DR1"
-    else:
-        data += "DR0"
-    if joy.leftBumper():
-        data += "LB1"
-    else:
-        data += "LB0"
-    if joy.rightBumper():
-        data += "RB1"
-    else:
-        data += "RB0"
-    return data
-
-#input from the sticks are concatenated to a string (data)
-def stickCollect(data):
-    data += "LX" + str(joy.leftX())
-    data += "LY" + str(joy.leftY())
-    data += "RX" + str(joy.rightX())
-    data += "RY" + str(joy.rightY())
-    return data
-
-#input from triggers is concatenated to a string (data)
-def trigCollect(data):
-    data += "LT" + str(joy.leftTrigger())
-    data += "RT" + str(joy.rightTrigger())
-    #the END must be concatenated to break the string at the other end
-    data += "END"
     return data
 
 #xbox joystick class is initilized
@@ -119,7 +51,7 @@ conn = setupConnection()
 #to the client which must decode it properly
 while True:
     #refreshes button values at the beginning of each loop
-    buttons = [joy.A(), joy.B(), joy.X(), joy.Y(), joy.leftThumbstick(), joy.rightThumbstick(), joy.dpadUp(), joy.dPadDown(), joy.dpadLeft(), joy.dpadRight(),
+    buttons = [joy.A(), joy.B(), joy.X(), joy.Y(), joy.leftThumbstick(), joy.rightThumbstick(), joy.dpadUp(), joy.dpadDown(), joy.dpadLeft(), joy.dpadRight(),
 joy.leftBumper(), joy.rightBumper(), joy.leftX(), joy.leftY(), joy.rightX(), joy.rightY(), joy.leftTrigger(), joy.rightTrigger()]
 
     #shuts the client down remotely if Start and Back are pressed
@@ -136,13 +68,8 @@ joy.leftBumper(), joy.rightBumper(), joy.leftX(), joy.leftY(), joy.rightX(), joy
         else: 
             conn = setupConnection()
 
-    """
-    #data string is concatenated to include all data 
-    data = buttonCollect(data)
-    data = stickCollect(data)
-    data = trigCollect(data)
-    """
     data = dataCollect(buttons, buttonKeys)
+    data += "END"
 
     #sends HOLD command if controller is disconnected
     if not joy.connected():
